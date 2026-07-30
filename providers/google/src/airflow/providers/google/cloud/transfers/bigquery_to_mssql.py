@@ -80,13 +80,13 @@ class BigQueryToMsSqlOperator(BigQueryToSqlBaseOperator):
                 )
 
             target_table_name = mssql_table
-        self.source_project_dataset_table = source_project_dataset_table
         super().__init__(
             target_table_name=target_table_name,
-            dataset_table=self.source_project_dataset_table,
+            dataset_table="",
             **kwargs,
         )
         self.mssql_conn_id = mssql_conn_id
+        self.source_project_dataset_table = source_project_dataset_table
         self.dataset_id = None
         self.table_id = None
 

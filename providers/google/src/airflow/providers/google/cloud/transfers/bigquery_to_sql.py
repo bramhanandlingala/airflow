@@ -103,10 +103,7 @@ class BigQueryToSqlBaseOperator(BaseOperator):
         self.impersonation_chain = impersonation_chain
         self.dataset_id = dataset_id
         self.table_id = table_id
-        try:
-            self.dataset_id, self.table_id = dataset_table.split(".")
-        except ValueError:
-            raise ValueError(f"Could not parse {dataset_table} as <dataset>.<table>") from None
+        self.dataset_table = dataset_table
 
     @abc.abstractmethod
     def get_sql_hook(self) -> DbApiHook:
@@ -124,6 +121,11 @@ class BigQueryToSqlBaseOperator(BaseOperator):
         )
 
     def execute(self, context: Context) -> None:
+        if self.dataset_id is None or self.table_id is None:
+            try:
+                self.dataset_id, self.table_id = self.dataset_table.split(".")
+            except ValueError:
+                raise ValueError(f"Could not parse {self.dataset_table} as <dataset>.<table>") from None
         self.persist_links(context)
         sql_hook = self.get_sql_hook()
         for rows in bigquery_get_data(
